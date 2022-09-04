@@ -1,0 +1,132 @@
+Experimental settings are: 
+{'data_path': './data/', 'filename': 'sdwpf_baidukddcup2022_full.csv', 'task': 'MS', 'target': 'Patv', 'checkpoints': './checkpoints/', 'input_len': 144, 'output_len': 288, 'start_col': 3, 'in_var': 10, 'out_var': 1, 'day_len': 144, 'train_size': 153, 'val_size': 16, 'test_size': 15, 'total_size': 184, 'lstm_layer': 2, 'dropout': 0.05, 'num_workers': 5, 'train_epochs': 10, 'batch_size': 32, 'patience': 3, 'lr': 0.0001, 'lr_adjust': 'type1', 'capacity': 134, 'turbine_id': 0, 'pred_file': './predict.py', 'stride': 1, 'is_debug': False}
+>>>>>>> Training Turbine   0 >>>>>>>>>>>>>>>>>>>>>>>>>>
+
+starting 0 0  of  675
+starting 0 100  of  675
+starting 0 200  of  675
+starting 0 300  of  675
+starting 0 400  of  675
+starting 0 500  of  675
+starting 0 600  of  675
+starting 1 0  of  675
+starting 1 100  of  675
+starting 1 200  of  675
+starting 1 300  of  675
+starting 1 400  of  675
+starting 1 500  of  675
+starting 1 600  of  675
+starting 2 0  of  675
+starting 2 100  of  675
+starting 2 200  of  675
+starting 2 300  of  675
+starting 2 400  of  675
+starting 2 500  of  675
+starting 2 600  of  675
+starting 3 0  of  675
+starting 3 100  of  675
+starting 3 200  of  675
+starting 3 300  of  675
+starting 3 400  of  675
+starting 3 500  of  675
+starting 3 600  of  675
+Early stopped! 
+>>>>>>> Training Turbine   1 >>>>>>>>>>>>>>>>>>>>>>>>>>
+
+starting 0 0  of  675
+starting 0 100  of  675
+starting 0 200  of  675
+starting 0 300  of  675
+starting 0 400  of  675
+starting 0 500  of  675
+starting 0 600  of  675
+starting 1 0  of  675
+starting 1 100  of  675
+starting 1 200  of  675
+starting 1 300  of  675
+starting 1 400  of  675
+starting 1 500  of  675
+starting 1 600  of  675
+starting 2 0  of  675
+starting 2 100  of  675
+starting 2 200  of  675
+starting 2 300  of  675
+starting 2 400  of  675
+starting 2 500  of  675
+starting 2 600  of  675
+starting 3 0  of  675
+starting 3 100  of  675
+starting 3 200  of  675
+starting 3 300  of  675
+starting 3 400  of  675
+starting 3 500  of  675
+starting 3 600  of  675
+starting 4 0  of  675
+starting 4 100  of  675
+starting 4 200  of  675
+starting 4 300  of  675
+starting 4 400  of  675
+starting 4 500  of  675
+starting 4 600  of  675
+starting 5 0  of  675
+starting 5 100  of  675
+starting 5 200  of  675
+starting 5 300  of  675
+starting 5 400  of  675
+starting 5 500  of  675
+starting 5 600  of  675
+Early stopped! 
+>>>>>>> Training Turbine   2 >>>>>>>>>>>>>>>>>>>>>>>>>>
+
+starting 0 0  of  675
+starting 0 100  of  675
+starting 0 200  of  675
+starting 0 300  of  675
+starting 0 400  of  675
+starting 0 500  of  675
+starting 0 600  of  675
+starting 1 0  of  675
+starting 1 100  of  675
+starting 1 200  of  675
+starting 1 300  of  675
+starting 1 400  of  675
+starting 1 500  of  675
+starting 1 600  of  675
+starting 2 0  of  675
+starting 2 100  of  675
+starting 2 200  of  675
+starting 2 300  of  675
+starting 2 400  of  675
+starting 2 500  of  675
+starting 2 600  of  675
+starting 3 0  of  675
+starting 3 100  of  675
+starting 3 200  of  675
+starting 3 300  of  675
+starting 3 400  of  675
+starting 3 500  of  675
+starting 3 600  of  675
+starting 4 0  of  675
+starting 4 100  of  675
+starting 4 200  of  675
+starting 4 300  of  675
+
+
+--------------------------------------
+C++ Traceback (most recent call last):
+--------------------------------------
+0   paddle::imperative::Tracer::TraceOp(std::string const&, paddle::imperative::NameVarBaseMap const&, paddle::imperative::NameVarBaseMap const&, paddle::framework::AttributeMap, std::map<std::string, std::string, std::less<std::string >, std::allocator<std::pair<std::string const, std::string > > > const&)
+1   void paddle::imperative::Tracer::TraceOpImpl<paddle::imperative::VarBase>(std::string const&, paddle::imperative::details::NameVarMapTrait<paddle::imperative::VarBase>::Type const&, paddle::imperative::details::NameVarMapTrait<paddle::imperative::VarBase>::Type const&, paddle::framework::AttributeMap&, phi::Place const&, bool, std::map<std::string, std::string, std::less<std::string >, std::allocator<std::pair<std::string const, std::string > > > const&, paddle::framework::AttributeMap*, bool)
+2   paddle::imperative::PreparedOp::Run(paddle::imperative::NameVarBaseMap const&, paddle::imperative::NameVarBaseMap const&, paddle::framework::AttributeMap const&, paddle::framework::AttributeMap const&)
+3   void phi::TransposeKernel<float, phi::CPUContext>(phi::CPUContext const&, phi::DenseTensor const&, std::vector<int, std::allocator<int> > const&, phi::DenseTensor*)
+4   phi::funcs::Transpose<phi::CPUContext, float, 3>::operator()(phi::CPUContext const&, phi::DenseTensor const&, phi::DenseTensor*, std::vector<int, std::allocator<int> > const&)
+5   Eigen::internal::TensorExecutor<Eigen::TensorAssignOp<Eigen::TensorMap<Eigen::Tensor<float, 3, 1, long>, 0, Eigen::MakePointer>, Eigen::TensorShufflingOp<std::array<int, 3ul> const, Eigen::TensorMap<Eigen::Tensor<float const, 3, 1, long>, 0, Eigen::MakePointer> const> const> const, Eigen::DefaultDevice, true, (Eigen::internal::TiledEvaluation)1>::run(Eigen::TensorAssignOp<Eigen::TensorMap<Eigen::Tensor<float, 3, 1, long>, 0, Eigen::MakePointer>, Eigen::TensorShufflingOp<std::array<int, 3ul> const, Eigen::TensorMap<Eigen::Tensor<float const, 3, 1, long>, 0, Eigen::MakePointer> const> const> const&, Eigen::DefaultDevice const&)
+6   Eigen::internal::TensorBlockIO<float, long, 3, 1>::Copy(Eigen::internal::TensorBlockIO<float, long, 3, 1>::Dst const&, Eigen::internal::TensorBlockIO<float, long, 3, 1>::Src const&, Eigen::DSizes<int, 3> const&)
+
+----------------------
+Error Message Summary:
+----------------------
+FatalError: `Termination signal` is detected by the operating system.
+  [TimeInfo: *** Aborted at 1662335424 (unix time) try "date -d @1662335424" if you are using GNU date ***]
+  [SignalInfo: *** SIGTERM (@0x3e8000026ea) received by PID 1685 (TID 0x7f50ba3d9740) from PID 9962 ***]
+
