@@ -1,0 +1,58 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/python:3.8
+    resource_class: large
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v0.5-dependencies-{{ checksum "env.common.yml" }}-{{ checksum "env.cpu.yml" }}-{{ checksum "env.gpu.yml" }}
+
+      - run:
+          name: Install conda and create env
+          command: |
+            if [ ! -d "/home/circleci/miniconda" ]; then
+              wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+              bash miniconda.sh -b -p "$HOME"/miniconda
+              source /home/circleci/miniconda/etc/profile.d/conda.sh
+              conda activate base
+              # Conda configuration
+              conda config --set always_yes yes --set auto_update_conda false
+              # Update conda
+              conda update conda
+              conda install mamba -n base -c conda-forge
+              # Install ocp conda env
+              conda create --name ocp-models --clone base
+              source /home/circleci/miniconda/etc/profile.d/conda.sh
+              conda activate ocp-models
+              conda install -c conda-forge conda-merge
+              conda-merge env.common.yml env.cpu.yml > env.yml
+              mamba env update -n ocp-models --file env.yml
+            fi
+
+      - save_cache:
+          paths:
+            - /home/circleci/miniconda
+          key: v0.5-dependencies-{{ checksum "env.common.yml" }}-{{ checksum "env.cpu.yml" }}-{{ checksum "env.gpu.yml" }}
+
+      - run:
+          name: Run tests
+          command: |
+            source /home/circleci/miniconda/etc/profile.d/conda.sh
+            conda activate ocp-models
+            pip install -e .
+            pre-commit install
+            pytest /home/circleci/project/tests
+
+      - run:
+          name: Run black
+          command: |
+            source /home/circleci/miniconda/etc/profile.d/conda.sh
+            conda activate ocp-models
+            pip install black==22.3.0
+            black . --check
