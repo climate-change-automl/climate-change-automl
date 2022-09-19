@@ -11,7 +11,7 @@ from climart.data_wrangling.constants import TEST_YEARS, LAYERS, OOD_PRESENT_YEA
     get_data_dims, OOD_FUTURE_YEARS, OOD_HISTORIC_YEARS
 from climart.data_wrangling.h5_dataset import ClimART_HdF5_Dataset
 from climart.models.column_handler import ColumnPreprocesser
-from climart.models.interface import get_trainer, is_gnn, is_graph_net, get_model, get_input_transform
+from climart.models.interface import get_trainer, is_gnn, is_graph_net, get_model, get_input_transform, is_cnn
 
 from climart.utils.hyperparams_and_args import get_argparser
 from climart.utils.preprocessing import Normalizer
@@ -21,6 +21,8 @@ import ConfigSpace
 import ConfigSpace.hyperparameters as CSH
 from smac.configspace import ConfigurationSpace
 from smac.facade.smac_hpo_facade import SMAC4HPO
+from smac.facade.smac_bb_facade import SMAC4BB
+
 from smac.scenario.scenario import Scenario
 from smac.utils.constants import MAXINT
 from smac.multi_objective.parego import ParEGO
@@ -78,61 +80,54 @@ def plot_pareto_from_runhistory(observations):
     plt.ylabel("Time")
     plt.savefig("cost_pareto.jpg")
     
-def get_cnn_config_space():
+def get_network_config_space():
     cs = ConfigSpace.ConfigurationSpace()
-    first_channel = CSH.CategoricalHyperparameter('first_channel', [100, 32, 50, 64], default_value=100)
-    second_channel = CSH.CategoricalHyperparameter('second_channel', [200, 64, 100, 128], default_value=200)
-    third_channel = CSH.CategoricalHyperparameter('third_channel', [400, 128, 200, 256], default_value=400)
-    fourth_channel = CSH.CategoricalHyperparameter('fourth_channel', [100, 32, 50, 64], default_value=100)
-    '''
-    channel_list = CSH.CategoricalHyperparameter(
-        name="channel_list",
-        choices=[[100,200,400,100], [32,64,128,32], [50, 100, 200, 50], [100,200,400,100], [64, 128, 256, 64]],
-        default_value=[100,200,400,100],
-    )
-    '''
-    cs.add_hyperparameters([first_channel, second_channel, third_channel, fourth_channel])
+    model_choice = CSH.CategoricalHyperparameter('network_type', ['LGCN+Readout', 'CNN', 'MLP', 'GCN+Readout', 'GN+Readout'], default_value='MLP')
+    #model_choice = CSH.CategoricalHyperparameter('network_type', ['CNN', 'MLP'], default_value='MLP')
+    lr = CSH.UniformFloatHyperparameter("lr", lower=1e-5, upper=1e-1, default_value=2e-4, log=True)
+    wd = CSH.UniformFloatHyperparameter("weight_decay", lower=1e-7, upper=1e-4, default_value=1e-6, log=True)
+
+    cs.add_hyperparameters([model_choice, lr, wd])
     return cs
 
-def train_cnn(cfg):
-    net_params['channels_list'] = [cfg['first_channel'], cfg['second_channel'], cfg['third_channel'], 100]
+def train_network(cfg):
+    params['model'] = cfg['network_type']
+    params['lr'] = float(cfg['lr'])
+    params['weight_decay'] = float(cfg['weight_decay'])
+
     params['epochs'] = 5
-    trainer_kwargs = dict(
-        model_name=params['model'], model_params=net_params,
-        device=params['device'], seed=params['seed'],
-        model_dir=params['model_dir'],
-        out_layer_bias=out_layer_bias,
-        output_postprocesser=output_postprocesser,
-        output_normalizer=output_normalizer,
-    )
-    if cp is not None:
-        trainer_kwargs['column_preprocesser'] = cp
+    net_params['channels_list'] = [100, 200, 400, 100]
 
-    trainer = get_trainer(**trainer_kwargs)
-
-    best_valid, eval_time = trainer.fit(trainloader, valloader,
-                                hyper_params=params,
-                                testloader=None,
-                                testloader_names=None,
-                                time_valid=True,
-                                )
-
-    return {'loss': float(best_valid), 'time': float(eval_time)}
+    if params['model'].strip().lower() == 'mlp':
+        net_params['hidden_dims'] = [512, 256, 256]
+        net_params['net_normalization'] = 'layer_norm'
+        params['preprocessing_dict']['preprocessing'] = "padding"
 
 
-if __name__ == '__main__':
+    if params['model'] == 'LGCN+Readout':
+        params['model'] = 'GCN+Readout'
+        net_params['learn_edge_structure'] = True
+    else: 
+        net_params['learn_edge_structure'] = False
 
-    logging.basicConfig()
-    global params
-    global net_params
-    global other_args
-    params, net_params, other_args = get_argparser()
-    set_seed(params['seed'])  # for reproducibility
-    result = get_data_dims(params['exp_type'])
-    spatial_dim = result['spatial_dim']
-    in_dim = result['input_dim']
+    if is_gnn(params['model']):
+        net_params['hidden_dims'] = [128, 128, 128]
+        net_params['net_normalization'] = 'layer_norm'
+        params['preprocessing_dict']['preprocessing'] = "mlp_projection"
 
-    global cp 
+    
+    if is_graph_net(params['model']):
+        net_params['hidden_dims'] = [128, 128, 128]
+        net_params['net_normalization'] = 'layer_norm'
+        params['preprocessing_dict']['preprocessing'] = "graph_net_level_nodes"
+    
+    if is_cnn(params['model']):
+        net_params['hidden_dims'] = [128, 128, 128]
+        net_params['net_normalization'] = 'none'
+        params['preprocessing_dict']['preprocessing'] = "padding"
+
+    
+
     if is_gnn(params['model']) or is_graph_net(params['model']):
         # cp maps the data to a graph structure needed for a GCN or GraphNet
         cp = ColumnPreprocesser(
@@ -183,12 +178,10 @@ if __name__ == '__main__':
     log.info(f" {'Targets are' if len(params['target_type']) > 1 else 'Target is'} {' '.join(params['target_type'])}")
     params['target_variable'] = get_target_variable(params.pop('target_variable'))
     params['training_set_size'] = len(train_set)
-    global output_normalizer
-    global output_postprocesser
+
     output_normalizer = train_set.output_normalizer
     output_postprocesser = train_set.output_variable_splitter
 
-    global out_layer_bias
     if not isinstance(output_normalizer, Normalizer):
         log.info('Initializing out layer bias to output train dataset mean!')
         params['output_bias_mean_init'] = True
@@ -200,8 +193,6 @@ if __name__ == '__main__':
     dataloader_kwargs = {'pin_memory': True, 'num_workers': params['workers']}
     eval_batch_size = 512
 
-    global trainloader
-    global valloader
     trainloader = DataLoader(train_set, batch_size=params['batch_size'], shuffle=True, **dataloader_kwargs)
     valloader = DataLoader(val_set, batch_size=eval_batch_size, **dataloader_kwargs)
 
@@ -211,14 +202,47 @@ if __name__ == '__main__':
         DataLoader(test_set, batch_size=eval_batch_size, **dataloader_kwargs) for test_set in test_sets
     ]
     '''
+    trainer_kwargs = dict(
+        model_name=params['model'], model_params=net_params,
+        device=params['device'], seed=params['seed'],
+        model_dir=params['model_dir'],
+        out_layer_bias=out_layer_bias,
+        output_postprocesser=output_postprocesser,
+        output_normalizer=output_normalizer,
+    )
+    if cp is not None:
+        trainer_kwargs['column_preprocesser'] = cp
 
-    cs = get_cnn_config_space()
+    trainer = get_trainer(**trainer_kwargs)
+
+    best_valid, eval_time = trainer.fit(trainloader, valloader,
+                                hyper_params=params,
+                                testloader=None,
+                                testloader_names=None,
+                                time_valid=True,
+                                )
+
+    return {'loss': float(best_valid), 'time': float(eval_time)}
+
+
+if __name__ == '__main__':
+    logging.basicConfig()
+    global params
+    global net_params
+    global other_args
+    params, net_params, other_args = get_argparser()
+    set_seed(params['seed'])  # for reproducibility
+    result = get_data_dims(params['exp_type'])
+    spatial_dim = result['spatial_dim']
+    in_dim = result['input_dim']
+
+    cs = get_network_config_space()
 
     # Scenario object
     scenario = Scenario(
         {
             "run_obj": "quality",  # we optimize quality (alternatively runtime)
-            "runcount-limit": 50,  # max. number of function evaluations
+            "runcount-limit": 30,  # max. number of function evaluations
             "cs": cs,  # configuration space
             "deterministic": True,
             "multi_objectives": ["loss", "time"],
@@ -232,7 +256,7 @@ if __name__ == '__main__':
     smac = SMAC4HPO(
         scenario=scenario,
         rng=np.random.RandomState(42),
-        tae_runner=train_cnn,
+        tae_runner=train_network,
         multi_objective_algorithm=ParEGO,
         multi_objective_kwargs={
             "rho": 0.05,

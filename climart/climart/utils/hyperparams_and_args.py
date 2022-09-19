@@ -97,7 +97,7 @@ def get_argparser(jupyter_mode=False):
     parser.add_argument('--pyg_builtin', action='store_true', help='Use Pytorch geometric GCN implementation')
     # ------------------- GN Arguments
     parser.add_argument('--update_mlp_n_layers', type=int, default=1, help='Number of layers of the update MLPs')
-    parser.add_argument('--aggregator_func', type=str, default='sum', help='Aggregator function for edges, node,...')
+    parser.add_argument('--aggregator_func', type=str, default='mean', help='Aggregator function for edges, node,...')
     parser.add_argument('--readout_which_output', type=str, default='nodes', help='edges, nodes, globals, graph')
 
     # ------------------- GN and GNN Arguments

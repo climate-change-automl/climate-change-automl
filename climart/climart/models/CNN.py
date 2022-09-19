@@ -96,13 +96,14 @@ class CNN_Net(BaseModel):
              where x_*** are the corresponding features.
         """ 
         X = self.feat_cnn(X)
-
+        '''
         if not self.use_linear:
             X = rearrange(X, 'b f c -> b (f c)')
             X = self.ll(X)
         else:
             X = self.global_average(X)
-
+        '''
+        X = self.global_average(X)      
         return X.squeeze(2)
 
 

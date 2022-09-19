@@ -6,4 +6,6 @@ out/*
 .ipynb_checkpoints
 .idea
 smac3*
+*.db
+*.jpg
 ClimART_DATA
