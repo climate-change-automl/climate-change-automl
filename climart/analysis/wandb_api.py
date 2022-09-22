@@ -172,8 +172,8 @@ def get_runs_df(
 
     api = wandb.Api()
     # Project is specified by <entity/project-name>
-    #runs = api.runs(f"renbotu/{exp_to_wandb_project[exp_type]}")
-    runs = api.runs('renbotu/ClimART')
+    #runs = api.runs(f"xxxxxxx/{exp_to_wandb_project[exp_type]}")
+    runs = api.runs('xxxxxxx/ClimART')
     print(len(runs))
     summary_list = []
     config_list = []
