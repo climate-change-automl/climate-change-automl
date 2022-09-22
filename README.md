@@ -9,6 +9,7 @@
 Climate change is one of the most pressing issues facing humanity, and although automated machine learning (AutoML) techniques have been developing rapidly, they do not yet perform well out of the box for high-impact climate change datasets.
 We give a `call to action` to the AutoML community to use AutoML methods on challenging CCAI datasets.
 In this repository, we run popular AutoML libraries on datasets for climate modeling, catalyst prediciton, and wind power forecasting.
+<p align="center"><img src="img/ccai-automl-overview.png" width=700 /></p>
 
 # Table of contents
 1. [ClimART](#ClimART)
