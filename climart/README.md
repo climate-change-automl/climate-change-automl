@@ -17,13 +17,6 @@ ClimART poses several methodological challenges for the ML community, such as mu
 
 Contact: Venkatesh Ramesh [(venka97 at gmail)](mailto:venka97@gmail.com) or Salva Rühling Cachay [(salvaruehling at gmail)](mailto:salvaruehling@gmail.com). <br>
 
-## Overview:
-
-* ``climart/``: Package with the main code, baselines and ML training logic.
-* ``notebooks/``: Notebooks for visualization of data.
-* ``analysis/``: Scripts to create visualization of the results (requires logging).
-* ``scripts/``: Scripts to train and evaluate models, and to download the whole ClimART dataset.
-
 ## Getting Started
 <details><p>
     <summary><b> Requirements</b></summary>
@@ -112,64 +105,44 @@ The complete list of variables in the dataset is as follows: </br>
 
 ```
 
-## Reproducing our Baselines
+## Reproducing AutoML Experiments
 
 To reproduce our paper results (for seed = 7) you may run the following commands in a shell. 
     
-### CNN
+### SMAC3
 
 ```
-python main.py --model "CNN" --exp_type "pristine" --target_type "shortwave" --workers 6 --seed 7 \
-  --batch_size 128 --lr 2e-4 --optim Adam --weight_decay 1e-6 --scheduler "expdecay" \
-  --in_normalize "Z" --net_norm "none" --dropout 0.0 --act "GELU" --epochs 100 \
+python smac_network.py --exp_type "pristine" --target_type "shortwave" --workers 6 --seed 7 \
+--batch_size 128  --optim Adam --scheduler "expdecay" \
+--in_normalize "Z" --net_norm "layer_norm" --dropout 0.0 --act "GELU" --epochs 100 --gap --gradient_clipping "norm" --clip 1.0 --hidden_dims 128 128 128 --preprocessing "mlp_projection" --projector_net_normalization "layer_norm" --graph_pooling "mean" --residual --improved_self_loops --train_years "1990+1999+2003" --validation_years "2005" --wandb_mode disabled  --load_train_into_mem --load_val_into_mem --device cuda
+```
+
+### Optuna
+
+```
+python optuna_exp.py --model "CNN" --exp_type "pristine" --target_type "shortwave" --workers 6 --seed 7 \
+   --optim Adam --scheduler "expdecay" \
+  --in_normalize "Z" --net_norm "none"  --act "GELU" \
   --gap --gradient_clipping "norm" --clip 1.0 \
   --train_years "1990+1999+2003" --validation_years "2005" \
-  --wandb_mode disabled
+  --wandb_mode disabled --load_train_into_mem  --epochs 20 --device cuda \
 ```
 
-### MLP 
+### Retrain the models after search 
+See instructions at [the original climart repo](https://github.com/RolnickLab/climart/tree/research_code).
 
-```
-python main.py --model "MLP" --exp_type "pristine" --target_type "shortwave" --workers 6 --seed 7 \
-  --batch_size 128 --lr 2e-4 --optim Adam --weight_decay 1e-6 --scheduler "expdecay" \
-  --in_normalize "Z" --net_norm "layer_norm" --dropout 0.0 --act "GELU" --epochs 100 \
-  --gradient_clipping "norm" --clip 1.0 --hidden_dims 512 256 256 \
-  --train_years "1990+1999+2003" --validation_years "2005" \
-  --wandb_mode disabled
-```
-
-### GCN
-
-```
-python main.py --model "GCN+Readout" --exp_type "pristine" --target_type "shortwave" --workers 6 --seed 7 \
-  --batch_size 128 --lr 2e-4 --optim Adam --weight_decay 1e-6 --scheduler "expdecay" \
-  --in_normalize "Z" --net_norm "layer_norm" --dropout 0.0 --act "GELU" --epochs 100 \
-  --preprocessing "mlp_projection" --projector_net_normalization "layer_norm" --graph_pooling "mean"\
-  --residual --improved_self_loops \
-  --gradient_clipping "norm" --clip 1.0 --hidden_dims 128 128 128 \  
-  --train_years "1990+1999+2003" --validation_years "2005" \
-  --wandb_mode disabled
-```
 
 ## Logging
 
 Currently, logging is disabled by default. However, the user may use wandb to log the experiments by passing the argument ``--wandb_mode=online``
 
-## Notebooks
-
-There are some jupyter notebooks in the notebooks folder which we used for plotting, benchmarking etc. You may go through them to visualize the results/benchmark the models.
 
 ## License: 
 This work is made available under [Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/legalcode) license. ![CC BY 4.0][cc-by-shield]
 
-## Development
-
-This repository is currently under active development and you may encounter bugs with some functionality. 
-Any feedback, extensions & suggestions are welcome!
-
 
 ## Citation
-If you find ClimART or this repository helpful, feel free to cite our publication:
+If you find ClimART helpful, feel free to cite:
 
     @inproceedings{cachay2021climart,
         title={{ClimART}: A Benchmark Dataset for Emulating Atmospheric Radiative Transfer in Weather and Climate Models},
