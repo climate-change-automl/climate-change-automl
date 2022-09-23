@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+Graphormer/fairseq/*
+Graphormer/examples/oc20/data*
+Graphormer/examples/oc20/ckpts*
+Graphormer/*.db'
+Graphormer/examples/oc20/tsbs*
+
+Graphormer/examples/oc20/data/*
