@@ -1,8 +1,9 @@
 
 # KDD Cup 2022 - Baidu Spatial Dynamic Wind Power Forecasting
 
-This is my solution for Baidu KDD Cup 2022, winning 3rd place in 2490 teams. 
+This is the solution for Baidu KDD Cup 2022, winning 3rd place in 2490 teams. 
 The task is to predict the wind farm's future 48 hours active power for every 10 minutes.
+The source code is taken from https://github.com/LongxingTan/KDDCup2022-Baidu and modified.
 
 <h1 align="center">
 <img src="./data/user_data/model.png" width="700" align=center/>
