@@ -21,12 +21,13 @@ The source code is taken from https://github.com/LongxingTan/KDDCup2022-Baidu an
 pip install -r requirements.txt
 ```
 1. Download the data from [Baidu AI studio](https://aistudio.baidu.com/aistudio/competition/detail/152/0/introduction), and put it in `./data/raw`
-2. Train the model
+2. Create folders submit/checkpoints and weights
+3. Train the model
 ```shell
 cd src/train
 python nn_train.py
 ```
-3. The file `result.zip` created in `./weights/` can be used for submit. 
+4. The file `result.zip` created in `./weights/` can be used for submit. 
 
 
 
