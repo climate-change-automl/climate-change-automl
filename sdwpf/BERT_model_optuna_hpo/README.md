@@ -9,7 +9,7 @@ The task is to predict the wind farm's future 48 hours active power for every 10
 </h1><br>
 
 ## Solution summary
-- A single BERT model is made from [the tfts library created by myself](https://github.com/LongxingTan/Time-series-prediction)
+- A single BERT model is made from TFTS library
 - Sliding window to generate more samples
 - Only 2 raw features are used, wind speed and direction
 - The daily fluctuation is added by post-processing to make the predicted result in line with daily periodicity
